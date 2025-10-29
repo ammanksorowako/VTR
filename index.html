@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visible Thinking Routines - Interactive Tool</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .routines-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .routine-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+
+        .routine-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .routine-card h3 {
+            color: #4a5568;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .routine-card p {
+            color: #718096;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .steps {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .step {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .step:before {
+            content: "•";
+            color: #667eea;
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .workspace {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: none;
+        }
+
+        .workspace.active {
+            display: block;
+        }
+
+        .workspace-header {
+            display: flex;
+            justify-content: between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .back-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .thinking-area {
+            margin-bottom: 25px;
+        }
+
+        .thinking-step {
+            margin-bottom: 25px;
+        }
+
+        .thinking-step h4 {
+            color: #4a5568;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            resize: vertical;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a6fd8;
+        }
+
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
+
+        .response-display {
+            background: #f7fafc;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .response-display.active {
+            display: block;
+        }
+
+        .response-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .response-item:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .routines-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Visible Thinking Routines</h1>
+            <p class="subtitle">Alat Interaktif untuk Membuat Proses Berpikir Menjadi Terlihat</p>
+        </header>
+
+        <div class="routines-grid" id="routinesGrid">
+            <!-- Kartu-kartu routine akan diisi oleh JavaScript -->
+        </div>
+
+        <div class="workspace" id="workspace">
+            <div class="workspace-header">
+                <button class="back-button" id="backButton">← Kembali ke Pilihan Routine</button>
+                <h2 id="workspaceTitle">See-Think-Wonder</h2>
+            </div>
+            
+            <div class="thinking-area" id="thinkingArea">
+                <!-- Area berpikir akan diisi secara dinamis -->
+            </div>
+
+            <div class="action-buttons">
+                <button class="btn btn-primary" id="saveButton">Simpan Respons</button>
+                <button class="btn btn-secondary" id="clearButton">Hapus Semua</button>
+            </div>
+
+            <div class="response-display" id="responseDisplay">
+                <h4>Respons Anda:</h4>
+                <div id="responseContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data routines
+        const routines = [
+            {
+                id: 'see-think-wonder',
+                title: 'See-Think-Wonder',
+                description: 'Membantu siswa membuat observasi, interpretasi, dan mengajukan pertanyaan.',
+                steps: [
+                    {
+                        title: 'Lihat (See)',
+                        prompt: 'Apa yang kamu lihat? Jelaskan secara objektif.',
+                        placeholder: 'Saya melihat...'
+                    },
+                    {
+                        title: 'Pikir (Think)',
+                        prompt: 'Apa yang kamu pikirkan tentang apa yang kamu lihat? Mengapa?',
+                        placeholder: 'Saya berpikir... karena...'
+                    },
+                    {
+                        title: 'Rasa Ingin Tahu (Wonder)',
+                        prompt: 'Apa yang membuatmu penasaran? Pertanyaan apa yang muncul?',
+                        placeholder: 'Saya ingin tahu...'
+                    }
+                ]
+            },
+            {
+                id: 'think-puzzle-explore',
+                title: 'Think-Puzzle-Explore',
+                description: 'Mengaktifkan pengetahuan awal dan merencanakan penyelidikan.',
+                steps: [
+                    {
+                        title: 'Pikir (Think)',
+                        prompt: 'Apa yang sudah kamu ketahui tentang topik ini?',
+                        placeholder: 'Saya tahu bahwa...'
+                    },
+                    {
+                        title: 'Teka-teki (Puzzle)',
+                        prompt: 'Pertanyaan atau teka-teki apa yang kamu miliki?',
+                        placeholder: 'Saya bertanya-tanya tentang...'
+                    },
+                    {
+                        title: 'Jelajahi (Explore)',
+                        prompt: 'Bagaimana kita bisa mengeksplorasi pertanyaan-pertanyaan ini?',
+                        placeholder: 'Kita bisa mengeksplorasi dengan...'
+                    }
+                ]
+            },
+            {
+                id: 'used-to-think',
+                title: 'I used to think... Now I think...',
+                description: 'Merefleksikan bagaimana pemikiran telah berubah seiring waktu.',
+                steps: [
+                    {
+                        title: 'Dulu Saya Berpikir...',
+                        prompt: 'Apa yang kamu pikirkan sebelumnya tentang topik ini?',
+                        placeholder: 'Dulu saya berpikir...'
+                    },
+                    {
+                        title: 'Sekarang Saya Berpikir...',
+                        prompt: 'Bagaimana pemikiranmu berubah? Apa yang kamu pikirkan sekarang?',
+                        placeholder: 'Sekarang saya berpikir... karena...'
+                    }
+                ]
+            },
+            {
+                id: 'claim-support-question',
+                title: 'Claim-Support-Question',
+                description: 'Mengembangkan kemampuan argumentasi dan berpikir kritis.',
+                steps: [
+                    {
+                        title: 'Klaim (Claim)',
+                        prompt: 'Buat sebuah pernyataan atau klaim tentang topik.',
+                        placeholder: 'Klaim saya adalah...'
+                    },
+                    {
+                        title: 'Dukungan (Support)',
+                        prompt: 'Apa bukti atau alasan yang mendukung klaimmu?',
+                        placeholder: 'Klaim ini didukung oleh...'
+                    },
+                    {
+                        title: 'Pertanyaan (Question)',
+                        prompt: 'Pertanyaan apa yang menantang atau membatasi klaim ini?',
+                        placeholder: 'Namun, saya bertanya...'
+                    }
+                ]
+            }
+        ];
+
+        // Elemen DOM
+        const routinesGrid = document.getElementById('routinesGrid');
+        const workspace = document.getElementById('workspace');
+        const thinkingArea = document.getElementById('thinkingArea');
+        const workspaceTitle = document.getElementById('workspaceTitle');
+        const backButton = document.getElementById('backButton');
+        const saveButton = document.getElementById('saveButton');
+        const clearButton = document.getElementById('clearButton');
+        const responseDisplay = document.getElementById('responseDisplay');
+        const responseContent = document.getElementById('responseContent');
+
+        let currentRoutine = null;
+
+        // Render kartu routines
+        function renderRoutineCards() {
+            routinesGrid.innerHTML = '';
+            routines.forEach(routine => {
+                const card = document.createElement('div');
+                card.className = 'routine-card';
+                card.innerHTML = `
+                    <h3>${routine.title}</h3>
+                    <p>${routine.description}</p>
+                    <div class="steps">
+                        ${routine.steps.map(step => `
+                            <div class="step">${step.title}</div>
+                        `).join('')}
+                    </div>
+                `;
+                card.addEventListener('click', () => openWorkspace(routine));
+                routinesGrid.appendChild(card);
+            });
+        }
+
+        // Buka workspace untuk routine tertentu
+        function openWorkspace(routine) {
+            currentRoutine = routine;
+            workspaceTitle.textContent = routine.title;
+            
+            // Render thinking steps
+            thinkingArea.innerHTML = '';
+            routine.steps.forEach((step, index) => {
+                const stepElement = document.createElement('div');
+                stepElement.className = 'thinking-step';
+                stepElement.innerHTML = `
+                    <h4>${step.title}</h4>
+                    <p>${step.prompt}</p>
+                    <textarea 
+                        id="step-${index}" 
+                        placeholder="${step.placeholder}"
+                    ></textarea>
+                `;
+                thinkingArea.appendChild(stepElement);
+            });
+
+            // Sembunyikan grid, tampilkan workspace
+            routinesGrid.style.display = 'none';
+            workspace.classList.add('active');
+            responseDisplay.classList.remove('active');
+        }
+
+        // Kembali ke grid routines
+        function backToGrid() {
+            workspace.classList.remove('active');
+            routinesGrid.style.display = 'grid';
+            currentRoutine = null;
+        }
+
+        // Simpan respons
+        function saveResponses() {
+            const responses = [];
+            let allFilled = true;
+
+            currentRoutine.steps.forEach((step, index) => {
+                const textarea = document.getElementById(`step-${index}`);
+                const response = textarea.value.trim();
+                
+                if (response) {
+                    responses.push({
+                        step: step.title,
+                        response: response
+                    });
+                } else {
+                    allFilled = false;
+                }
+            });
+
+            if (!allFilled) {
+                if (!confirm('Beberapa bagian masih kosong. Tetap simpan?')) {
+                    return;
+                }
+            }
+
+            // Tampilkan respons
+            responseContent.innerHTML = '';
+            responses.forEach(item => {
+                const responseItem = document.createElement('div');
+                responseItem.className = 'response-item';
+                responseItem.innerHTML = `
+                    <strong>${item.step}:</strong>
+                    <p>${item.response}</p>
+                `;
+                responseContent.appendChild(responseItem);
+            });
+
+            responseDisplay.classList.add('active');
+            
+            // Scroll ke respons
+            responseDisplay.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Hapus semua input
+        function clearAll() {
+            if (confirm('Apakah Anda yakin ingin menghapus semua yang telah ditulis?')) {
+                currentRoutine.steps.forEach((_, index) => {
+                    const textarea = document.getElementById(`step-${index}`);
+                    textarea.value = '';
+                });
+                responseDisplay.classList.remove('active');
+            }
+        }
+
+        // Event listeners
+        backButton.addEventListener('click', backToGrid);
+        saveButton.addEventListener('click', saveResponses);
+        clearButton.addEventListener('click', clearAll);
+
+        // Inisialisasi
+        renderRoutineCards();
+    </script>
+</body>
+</html>
